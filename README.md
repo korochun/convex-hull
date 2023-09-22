@@ -21,8 +21,9 @@ title: Модификация проекта «Выпуклая оболочка
 Для вычисления угла, под которым из начала координат виден отрезок $AB$
 используется определение скалярного произведения векторов:
 
-$$\overrightarrow{OA} \cdot \overrightarrow{OB} = x_A x_B + y_A y_B = OA \cdot OB \cos \alpha \\
-\therefore \quad \alpha = \arccos\left(\frac{x_A x_B + y_A y_B}{OA \cdot OB}\right)$$
+$$\overrightarrow{OA} \cdot \overrightarrow{OB} = x_A x_B + y_A y_B = OA \cdot OB \cos \alpha$$
+
+$$\therefore \quad \alpha = \arccos\left(\frac{x_A x_B + y_A y_B}{OA \cdot OB}\right)$$
 
 ---
 
