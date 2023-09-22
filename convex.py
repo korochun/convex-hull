@@ -1,5 +1,26 @@
+import math
+
 from deq import Deq
 from r2point import R2Point
+
+ORIGIN = R2Point(0, 0)
+
+
+# вычисление угла, под которым виден отрезок
+def segment_angle(p, q):
+    l1 = ORIGIN.dist(p)
+    l2 = ORIGIN.dist(q)
+    if l1 == 0 or l2 == 0:
+        return 0
+    return math.degrees(math.acos((p.x * q.x + p.y * q.y) / l1 / l2))
+
+
+# условное вычисление угла
+def poly_segment_angle(p, q):
+    if R2Point.area(p, q, ORIGIN) < 0.0:
+        return segment_angle(p, q)
+    else:
+        return 0
 
 
 class Figure:
@@ -9,6 +30,9 @@ class Figure:
         return 0.0
 
     def area(self):
+        return 0.0
+
+    def angle(self):
         return 0.0
 
 
@@ -48,6 +72,9 @@ class Segment(Figure):
         else:
             return self
 
+    def angle(self):
+        return segment_angle(self.p, self.q)
+
 
 class Polygon(Figure):
     """ Многоугольник """
@@ -55,20 +82,25 @@ class Polygon(Figure):
     def __init__(self, a, b, c):
         self.points = Deq()
         self.points.push_first(b)
-        if b.is_light(a, c):
-            self.points.push_first(a)
-            self.points.push_last(c)
-        else:
-            self.points.push_last(a)
-            self.points.push_first(c)
+        if not b.is_light(a, c):
+            a, c = c, a
+        self.points.push_first(a)
+        self.points.push_last(c)
         self._perimeter = a.dist(b) + b.dist(c) + c.dist(a)
         self._area = abs(R2Point.area(a, b, c))
+
+        self._angle = (poly_segment_angle(a, b)
+                       + poly_segment_angle(b, c)
+                       + poly_segment_angle(c, a))
 
     def perimeter(self):
         return self._perimeter
 
     def area(self):
         return self._area
+
+    def angle(self):
+        return self._angle
 
     # добавление новой точки
     def add(self, t):
@@ -87,12 +119,15 @@ class Polygon(Figure):
             self._area += abs(R2Point.area(t,
                                            self.points.last(),
                                            self.points.first()))
+            self._angle -= poly_segment_angle(
+                self.points.last(), self.points.first())
 
             # удаление освещённых рёбер из начала дека
             p = self.points.pop_first()
             while t.is_light(p, self.points.first()):
                 self._perimeter -= p.dist(self.points.first())
                 self._area += abs(R2Point.area(t, p, self.points.first()))
+                self._angle -= poly_segment_angle(p, self.points.first())
                 p = self.points.pop_first()
             self.points.push_first(p)
 
@@ -101,12 +136,15 @@ class Polygon(Figure):
             while t.is_light(self.points.last(), p):
                 self._perimeter -= p.dist(self.points.last())
                 self._area += abs(R2Point.area(t, p, self.points.last()))
+                self._angle -= poly_segment_angle(self.points.last(), p)
                 p = self.points.pop_last()
             self.points.push_last(p)
 
             # добавление двух новых рёбер
             self._perimeter += t.dist(self.points.first()) + \
                 t.dist(self.points.last())
+            self._angle += (poly_segment_angle(t, self.points.first())
+                            + poly_segment_angle(self.points.last(), t))
             self.points.push_first(t)
 
         return self

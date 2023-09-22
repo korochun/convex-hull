@@ -23,8 +23,11 @@ class TestVoid:
         assert self.f.perimeter() == 0.0
 
     # Площадь нульугольника нулевая
-    def test_аrea(self):
+    def test_area(self):
         assert self.f.area() == 0.0
+
+    def test_angle(self):
+        assert self.f.angle() == 0.0
 
     # При добавлении точки нульугольник превращается в одноугольник
     def test_add(self):
@@ -50,8 +53,11 @@ class TestPoint:
         assert self.f.perimeter() == 0.0
 
     # Площадь одноугольника нулевая
-    def test_аrea(self):
+    def test_area(self):
         assert self.f.area() == 0.0
+
+    def test_angle(self):
+        assert self.f.angle() == 0.0
 
     # При добавлении точки одноугольник может не измениться
     def test_add1(self):
@@ -81,8 +87,11 @@ class TestSegment:
         assert self.f.perimeter() == approx(2.0)
 
     # Площадь двуугольника нулевая
-    def test_аrea(self):
+    def test_area(self):
         assert self.f.area() == 0.0
+
+    def test_angle(self):
+        assert self.f.angle() == 0.0
 
     # При добавлении точки двуугольник может не измениться
     def test_add1(self):
@@ -93,8 +102,23 @@ class TestSegment:
         assert isinstance(self.f.add(R2Point(2.0, 0.0)), Segment)
 
     # При добавлении точки двуугольник может превратиться в треугольник
-    def test_add2(self):
+    def test_add3(self):
         assert isinstance(self.f.add(R2Point(0.0, 1.0)), Polygon)
+
+
+def test_segment_angle1():
+    seg = Segment(R2Point(0.0, 1.0), R2Point(1.0, 0.0))
+    assert seg.angle() == approx(90.0)
+
+
+def test_segment_angle2():
+    seg = Segment(R2Point(-1.0, 0.0), R2Point(1.0, 0.0))
+    assert seg.angle() == approx(180.0)
+
+
+def test_segment_angle3():
+    seg = Segment(R2Point(0.5, 0.5), R2Point(1.0, 1.0))
+    assert seg.angle() == approx(0.0, abs=1e-6)
 
 
 class TestPolygon:
@@ -156,9 +180,37 @@ class TestPolygon:
 
     # Изменение площади многоугольника
     #   изначально она равна (неориентированной) площади треугольника
-    def test_аrea1(self):
+    def test_area1(self):
         assert self.f.area() == approx(0.5)
     #   добавление точки может увеличить площадь
 
     def test_area2(self):
         assert self.f.add(R2Point(1.0, 1.0)).area() == approx(1.0)
+
+    def test_angle(self):
+        assert self.f.angle() == approx(0.0, abs=1e-6)
+
+
+def test_poly_angle1():
+    poly = Polygon(R2Point(1.0, 0.0), R2Point(0.0, 1.0), R2Point(1.0, 1.0))
+    assert poly.angle() == approx(90.0)
+    poly.add(R2Point(2.0, 2.0))
+    assert poly.angle() == approx(90.0)
+    poly.add(R2Point(0.0, 2.0))
+    assert poly.angle() == approx(90.0)
+    poly.add(R2Point(-2.0 / sqrt(3), 2.0))
+    assert poly.angle() == approx(120.0)
+    poly.add(R2Point(-1.0, 0.0))
+    assert poly.angle() == approx(0.0, abs=1e-6)
+    poly.add(R2Point(-1.0, 1.0))
+    assert poly.angle() == approx(0.0, abs=1e-6)
+    poly.add(R2Point(0.0, 0.0))
+    assert poly.angle() == approx(0.0, abs=1e-6)
+
+
+def test_poly_angle2():
+    poly = Polygon(R2Point(1.0, 0.0), R2Point(0.0, 1.0), R2Point(1.0, 1.0))
+    poly.add(R2Point(0.0, 0.0))
+    assert poly.angle() == approx(0.0, abs=1e-6)
+    poly.add(R2Point(-1.0, 1.0))
+    assert poly.angle() == approx(0.0, abs=1e-6)
